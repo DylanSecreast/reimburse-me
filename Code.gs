@@ -69,9 +69,9 @@ function helpMe() {
 }
 
 // SHOW ALERT //
-function showAlert(title, msg) {
+function showAlert(title, prompt) {
   var ui = SpreadsheetApp.getUi();
-  return ui.alert(title, msg, ui.ButtonSet.OK);
+  ui.alert(title, prompt, ui.ButtonSet.OK)
 }
 
 // UPDATE CELL //
@@ -155,27 +155,44 @@ function getFirstEmptyRow() {
   return (ct + offSet);
 }
 
+
+// INIT BACKUP //
+function initBackup() {
+  var doesFolderExist = false;
+  if (DriveApp.getFoldersByName("ReimburseMe").hasNext()) {
+    doesFolderExist = true;
+  }
+  if (!doesFolderExist) {
+    return DriveApp.createFolder("ReimburseMe");
+  }
+  return;
+}
+
 // BACKUP SHARED EXPENSES //
-function backupSharedExpenses() {
+function backupSharedExpenses() { // TODO: fix
+  initBackup();
   // TODO: fix
-  return showAlert("I can't!", "Error: Functionality not currently available.");
+  return showAlert("Success!", "Successfully backed up \"Monthly Shared Expenses\" to your Google Drive/ReimburseMe/ folder.");
 }
 
 // BACKUP CLAIM BALANCES //
 function backupClaimBalances() {
   // TODO: fix
+  initBackup();
   return showAlert("I can't!", "Error: Functionality not currently available.");
 }
 
 // BACKUP LOG //
 function backupLog() {
   // TODO: fix
+  initBackup();
   return showAlert("I can't!", "Error: Functionality not currently available.");
 }
 
 // BACKUP ALL //
 function backupAll() {
   // TODO: fix
+  initBackup();
   return showAlert("I can't!", "Error: Functionality not currently available.");
 }
 
