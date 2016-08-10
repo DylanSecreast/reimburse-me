@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+</head>
+<body>
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
+  <!-- The CSS package above applies Google styling to buttons and other elements. -->
+  
+  <style>
+  .gray-bg {
+    background-color: lightgray;
+  }
+  
+  
+  /* unvisited link */
+  a:link {
+    color: gray;
+    text-decoration: underline;
+  }
+
+  /* visited link */
+  a:visited {
+    color: gray;
+    text-decoration: underline;
+  }
+
+  /* mouse over link */
+  a:hover {
+    color: white;
+    text-decoration: underline;
+  }
+
+  /* selected link */
+  a:active {
+    color: white;
+    text-decoration: underline;
+  }
+  
+  .ui-multiselect { padding:2px 0 2px 4px; text-align:left }
+  .ui-multiselect span.ui-icon { float:right }
+  .ui-multiselect-single .ui-multiselect-checkboxes input { position:absolute !important; top: auto !important; left:-9999px; }
+  .ui-multiselect-single .ui-multiselect-checkboxes label { padding:5px !important }
+  
+  .ui-multiselect-header { margin-bottom:3px; padding:3px 0 3px 4px }
+  .ui-multiselect-header ul { font-size:0.9em }
+  .ui-multiselect-header ul li { float:left; padding:0 10px 0 0 }
+  .ui-multiselect-header a { text-decoration:none }
+  .ui-multiselect-header a:hover { text-decoration:underline }
+  .ui-multiselect-header span.ui-icon { float:left }
+  .ui-multiselect-header li.ui-multiselect-close { float:right; text-align:right; padding-right:0 }
+  
+  .ui-multiselect-menu { display:none; padding:3px; position:absolute; z-index:10000; text-align: left }
+  .ui-multiselect-checkboxes { position:relative /* fixes bug in IE6/7 */; overflow-y:scroll }
+  .ui-multiselect-checkboxes label { cursor:default; display:block; border:1px solid transparent; padding:3px 1px }
+  .ui-multiselect-checkboxes label input { position:relative; top:1px }
+  .ui-multiselect-checkboxes li { clear:both; font-size:0.9em; padding-right:3px }
+  .ui-multiselect-checkboxes li.ui-multiselect-optgroup-label { text-align:center; font-weight:bold; border-bottom:1px solid }
+  .ui-multiselect-checkboxes li.ui-multiselect-optgroup-label a { display:block; padding:3px; margin:1px 0; text-decoration:none }
+  </style>
+
+  <div class="sidebar branding-below">
+    <center>
+      <h2>Have an Expense to Claim?</h2>
+      <br>
+      
+      <h3>Who Covered Expense?</h3>
+      <div class="block form-group">
+        <select id="select_covered">
+          <option value="Select">Select</option>
+          <option value="McKenna">McKenna</option>
+          <option value="Dylan">Dylan</option>
+          <option value="Jason">Jason</option>
+        </select>
+      </div>
+      <br>
+      
+      <h3>Amount(s) Owed</h3>
+      <div class="block form-group">
+        <b>McKenna:</b><br>$<input type="number" id="owe_McKenna" step="any"><br><br>
+        <b>Dylan:</b><br>$<input type="number" id="owe_Dylan" step="any"><br><br>
+        <b>Jason:</b><br>$<input type="number" id="owe_Jason" step="any"><br>
+      </div>
+      <br>
+
+      <h3>Comments</h3>
+      <div class="form-group">
+        <!-- <label for="sampleTextArea">Label</label> -->
+        <textarea id="comments" rows="3"></textarea>
+      </div>
+
+      <br><br>
+      <div class="block" id="button-bar">
+        <button class="share" id="submit" onclick="submitSidebar()">Submit</button>
+        <button class="" id="clear" onclick="clearSidebar()">Clear</button>
+      </div>
+      
+      <br><br><br>
+      <!-- <span class="secondary" id="lastClaimed"></span>
+      <br>
+      <span class="secondary" id="numClaims"></span> -->
+      
+    </center> 
+  </div>
+  
+  <div class="sidebar bottom gray-bg">
+    <center>
+      <!-- <img alt="Add-on logo" class="logo" height="27" id="logo" src="https://s.gravatar.com/avatar/fbb59aa8d1956d4ceea8455c16f14e1e?s=80">
+      <br> -->
+      <span class="secondary">ReimburseMe © <a href="mailto:dsecreast@gmail.com?Subject=Hello%20From%20ReimburseMe!" target="_top">Dylan Secreast</a> 2016.</span>
+    </center>
+  </div>
+  
+  <!--- Load libraries & css as required for jQuery UI MultiSelect Widget
+  <---- http://www.erichynds.com/blog/jquery-ui-multiselect-widget
+  <---- NOTE: jquery.multiselect.css would not pass caja when loaded, so has
+  <---- been replicated in <style> tags at top of this file. -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+  <script src="https://raw.github.com/ehynds/jquery-ui-multiselect-widget/master/src/jquery.multiselect.js"></script>
+  <!---<link rel="http://erichynds.com/examples/jquery-ui-multiselect-widget/jquery.multiselect.css" /> -->
+
+  <script>
+    function submitSidebar() {
+      var covered = document.getElementById('select_covered').value;
+      var owe_McKenna = document.getElementById('owe_McKenna').value;
+      var owe_Dylan = document.getElementById('owe_Dylan').value;
+      var owe_Jason = document.getElementById('owe_Jason').value;
+      var comments = document.getElementById('comments').value;
+      google.script.run.getNewExpenseData(covered, owe_McKenna, owe_Dylan, owe_Jason, comments);
+      return clearSidebar();
+    }
+    
+    function clearSidebar() {
+      document.getElementById("select_covered").value = "Select";
+      document.getElementById("owe_McKenna").value = '';
+      document.getElementById("owe_Dylan").value = '';
+      document.getElementById("owe_Jason").value = '';
+      document.getElementById("comments").value = ''; 
+      return;
+    }
+    
+    function getCurrentTime() {
+      var today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth()+1;
+      var yyyy = today.getFullYear();
+      if (dd < 10) {
+        dd = '0' + dd
+      } 
+      if (mm < 10) {
+        mm = '0' + mm
+      } 
+      return mm + '/' + dd + '/' + yyyy;
+    }
+  </script>
+  
+</body>
+</html>
+
+
+
