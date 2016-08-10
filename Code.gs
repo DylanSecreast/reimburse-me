@@ -82,8 +82,10 @@ function updateCell(target, value) {
 
 // CLEAR SHARED EXPENSES //
 function clearSharedExpenses() {
-  // TODO: fix
-  return showAlert("I can't!", "Error: Functionality not currently available.");
+  var sheet = SpreadsheetApp.getActiveSheet();
+  sheet.getRange('comcastTotal').setValue(0);
+  sheet.getRange('ewebTotal').setValue(0);
+  return;
 }
 
 // CLEAR CLAIM BALANCES //
