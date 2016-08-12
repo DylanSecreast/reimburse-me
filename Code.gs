@@ -231,7 +231,9 @@ function getNewExpenseData(covered, owe_McKenna, owe_Dylan, owe_Jason, comments)
     return showAlert("Oops!", "Error claiming new expense: Please select \"Who covered expense?\".\n\nNo information has been saved.");
   }
   else {
-    var alertMsg = "Successfully claimed new expense, please see summary below.\n\n\nCovered by: " + covered + "\n\n";
+    // Final success message dynamically concatenated
+    var alertMsg = "Successfully claimed new expense, please see summary below.\n\n\n";
+
     // If left blank, make $0.00
     if (owe_McKenna === '') {
       owe_McKenna = 0;
@@ -250,6 +252,7 @@ function getNewExpenseData(covered, owe_McKenna, owe_Dylan, owe_Jason, comments)
 
     // Calculate claim total
     var claimTotal = (owe_McKenna + owe_Dylan + owe_Jason);
+    alertMsg += "Claim Total: $" + claimTotal + "\n";
 
     // Get existing "Claims to be Reimbursed" individual totals
     var mckenna2dylan = sheet.getRange("mckenna2dylan").getValue();
@@ -259,109 +262,209 @@ function getNewExpenseData(covered, owe_McKenna, owe_Dylan, owe_Jason, comments)
     var jason2mckenna = sheet.getRange("jason2mckenna").getValue();
     var jason2dylan = sheet.getRange("jason2dylan").getValue();
 
-    // Calculate new Monthly Shared Expenses individual totals
+    // Calculate & update new Monthly Shared Expenses individual totals on spreadsheet
     if (covered === "McKenna") {  // If McKenna covered new expense claim
+      alertMsg += "Covered By: McKenna\n\n";
       if (owe_McKenna != 0) {
-        return showAlert("Wut?!", "Why would McKenna pay themselves back...?\n\nTry again.");
+        return showAlert("Invalid Operation", "McKenna cannot owe what they already covered.\n\nPlease try again.");
       }
       if (owe_Dylan > 0) {  // If Dylan owes on McKenna's new expense claim
-        if (dylan2mckenna === 0) {                                        // If this is Dylan's first claim to owe
-          updateCell("dylan2mckenna", owe_Dylan);                         // Initialize w/ owed amount
-        }
-        else if (mckenna2dylan < (dylan2mckenna + owe_Dylan)) {           // If Dylan owes more to McKenna than vice versa
+        if (mckenna2dylan < (dylan2mckenna + owe_Dylan)) {           // If Dylan owes more to McKenna than vice versa
           var difference = ((dylan2mckenna + owe_Dylan) - mckenna2dylan); // Calculate difference
           updateCell("mckenna2dylan", 0);                                 // Clear mckenna2dylan debt
           updateCell("dylan2mckenna", difference);                        // Set dylan2mckenna debt to difference
+          alertMsg += "Dylan's existing debt to McKenna: $" + dylan2mckenna + "\n";
+          alertMsg += "Dylan's debt to new claim: $" + owe_Dylan + "\n";
+          alertMsg += "McKenna's existing debt to Dylan: $" + mckenna2dylan + "\n\n";
+          alertMsg += "Dylan's updated debt to McKenna: $" + difference + "\n";
+          alertMsg += "McKenna's updated debt to Dylan: $0.00\n";
         }
         else if (mckenna2dylan === (dylan2mckenna + owe_Dylan)) {         // If Dylans debt = McKenna's debt
           updateCell("mckenna2dylan", 0)                                  // Clear mckenna2dylan debt
           updateCell("dylan2mckenna", 0);                                 // Clear dylan2mckenna debt
+          alertMsg += "Dylan's existing debt to McKenna: $" + dylan2mckenna + "\n";
+          alertMsg += "Dylan's debt to new claim: $" + owe_Dylan + "\n";
+          alertMsg += "McKenna's existing debt to Dylan: $" + mckenna2dylan + "\n\n";
+          alertMsg += "Dylan's updated debt to McKenna: $0.00\n";
+          alertMsg += "McKenna's updated debt to Dylan: $0.00\n";
         }
         else if (mckenna2dylan > (dylan2mckenna + owe_Dylan)) {           // If McKenna owes more to Dylan than vice versa
           var difference = (mckenna2dylan - (dylan2mckenna + owe_Dylan)); // Calculate difference
           updateCell("dylan2mckenna", 0);                                 // Clear dylan2mckenna debt
           updateCell("mckenna2dylan", difference)                         // Set mckenna2dylan debt to difference
+          alertMsg += "Dylan's existing debt to McKenna: $" + dylan2mckenna + "\n";
+          alertMsg += "Dylan's debt to new claim: $" + owe_Dylan + "\n";
+          alertMsg += "McKenna's existing debt to Dylan: $" + mckenna2dylan + "\n\n";
+          alertMsg += "McKenna's updated debt to Dylan: $" + difference + "\n";
+          alertMsg += "Dylans's updated debt to McKenna: $0.00\n";
+        }
+        else if (dylan2mckenna === 0) {                                        // If this is Dylan's first claim to owe
+          updateCell("dylan2mckenna", owe_Dylan);                           // Initialize w/ owed amount
         }
       }
       if (owe_Jason > 0) {  // If Jason owes on McKenna's new expense claim
-        if (jason2mckenna === 0) {
-          updateCell("jason2mckenna", owe_Jason);
-        }
-        else if (mckenna2jason < (jason2mckenna + owe_Jason)) {            // If Jason owes more to McKenna than vice versa
+        if (mckenna2jason < (jason2mckenna + owe_Jason)) {            // If Jason owes more to McKenna than vice versa
           var difference = ((jason2mckenna + owe_Jason) - mckenna2jason);  // Calculate difference
           updateCell("mckenna2jason", 0);                                  // Clear mckenna2jason debt
           updateCell("jason2mckenna", difference);                         // Set jason2mckenna debt to difference
+          alertMsg += "Jason's existing debt to McKenna: $" + Jason2mckenna + "\n";
+          alertMsg += "Jason's debt to new claim: $" + owe_Jason + "\n";
+          alertMsg += "McKenna's existing debt to Jason: $" + mckenna2jason + "\n\n";
+          alertMsg += "Jason's updated debt to McKenna: $" + difference + "\n";
+          alertMsg += "McKenna's updated debt to Jason: $0.00\n";
         }
         else if (mckenna2jason === (jason2mckenna + owe_Jason)) {          // If Jason's debt = McKenna's debt
           updateCell("mckenna2jason", 0);                                  // Clear mckenna2jason debt
           updateCell("jason2mckenna", 0);                                  // Clear jason2mckenna debt
+          alertMsg += "Jason's existing debt to McKenna: $" + jason2mckenna + "\n";
+          alertMsg += "Jason's debt to new claim: $" + owe_Jason + "\n";
+          alertMsg += "McKenna's existing debt to Jason: $" + mckenna2jason + "\n\n";
+          alertMsg += "Jason's updated debt to McKenna: $0.00\n";
+          alertMsg += "McKenna's updated debt to Jason: $0.00\n";
         }
         else if (mckenna2jason > (jason2mckenna + owe_Jason)) {            // If McKenna owes more to Jason than vice versa
           var difference = (mckenna2jason - (jason2mckenna + owe_Jason));  // Calculate difference
           updateCell("jason2mckenna", 0);                                  // Clear jason2mckenna debt
           updateCell("mckenna2jason", difference);                         // Set mckenna2jason debt to difference
+          alertMsg += "Jason's existing debt to McKenna: $" + jason2mckenna + "\n";
+          alertMsg += "Jason's debt to new claim: $" + owe_Jason + "\n";
+          alertMsg += "McKenna's existing debt to Jason: $" + mckenna2jason + "\n\n";
+          alertMsg += "McKenna's updated debt to Jason: $" + difference + "\n";
+          alertMsg += "Jason's updated debt to McKenna: $0.00\n";
+        }
+        else if (jason2mckenna === 0) {
+          updateCell("jason2mckenna", owe_Jason);
+          alertMsg += "Jason's debt to new claim: $" + owe_Jason + "\n";
         }
       }
     }
 
     else if (covered === "Dylan") {  // If Dylan covered new expense claim
+      alertMsg += "Covered By: Dylan\n";
       if (owe_Dylan != 0) {
-        return showAlert("Wut?!", "Why would Dylan pay themselves back...?\n\nTry again.");
+        return showAlert("Invalid Operation", "Dylan cannot owe what they already covered.\n\nPlease try again.");
       }
       if (owe_McKenna > 0) {  // If McKenna owes on Dylan's new expense claim
-        if (mckenna2dylan === 0) {
-          updateCell("mckenna2dylan", owe_McKenna);
-        }
-        else if (dylan2mckenna < (mckenna2dylan + owe_McKenna)) {
+        if (dylan2mckenna < (mckenna2dylan + owe_McKenna)) {
           var difference = ((mckenna2dylan + owe_McKenna) - dylan2mckenna);
           updateCell("dylan2mckenna", 0);
           updateCell("mckenna2dylan", difference);
+          alertMsg += "McKenna's existing debt to Dylan: $" + mckenna2dylan + "\n";
+          alertMsg += "McKenna's debt to new claim: $" + owe_McKenna + "\n";
+          alertMsg += "Dylan's existing debt to McKenna: $" + dylan2mckenna + "\n\n";
+          alertMsg += "McKenna's updated debt to Dylan: $" + difference + "\n";
+          alertMsg += "Dylan's updated debt to McKenna: $0.00\n";
         }
         else if (dylan2mckenna === (mckenna2dylan + owe_McKenna)) {
           updateCell("dylan2mckenna", 0);
           updateCell("mckenna2dylan", 0);
+          alertMsg += "McKenna's existing debt to Dylan: $" + mckenna2dylan + "\n";
+          alertMsg += "McKenna's debt to new claim: $" + owe_McKenna + "\n";
+          alertMsg += "Dylan's existing debt to Jason: $" + dylan2mckenna + "\n\n";
+          alertMsg += "Jason's updated debt to McKenna: $0.00\n";
+          alertMsg += "McKenna's updated debt to Jason: $0.00\n";
         }
         else if (dylan2mckenna > (mckenna2dylan + owe_McKenna)) {
           var difference = (mckenna2dylan - (mckenna2dylan + owe_McKenna));
           updateCell("mckenna2dylan", 0);
           updateCell("dylan2mckenna", difference);
+          alertMsg += "McKenna's existing debt to Dylan: $" + mckenna2dylan + "\n";
+          alertMsg += "McKenna's debt to new claim: $" + owe_McKenna + "\n";
+          alertMsg += "Dylan's existing debt to Jason: $" + dylan2mckenna + "\n\n";
+          alertMsg += "McKenna's updated debt to Dylan: $" + difference + "\n";
+          alertMsg += "Dylan's updated debt to McKenna: $0.00\n";
+        }
+        else if (mckenna2dylan === 0) {
+          updateCell("mckenna2dylan", owe_McKenna);
+          alertMsg += "McKenna Owes: $" + owe_McKenna + "\n";
         }
       }
       if (owe_Jason > 0) {  // If Jason owes on Dylan's new expense claim
-        if (jason2dylan === 0) {
-          updateCell("jason2dylan", owe_Jason);
-        }
-        else if (dylan2jason < (jason2dylan + owe_Jason)) {
+        if (dylan2jason < (jason2dylan + owe_Jason)) {
           var difference = ((jason2dylan + owe_Jason) - dylan2jason);
           updateCell("dylan2jason", 0);
           updateCell("jason2dylan", difference);
+          alertMsg += "Jason's existing debt to Dylan: $" + jason2dylan + "\n";
+          alertMsg += "Jason's debt to new claim: $" + owe_Jason + "\n";
+          alertMsg += "Dylan's existing debt to Jason: $" + dylan2jason + "\n\n";
+          alertMsg += "Jason's updated debt to Dylan: $" + difference + "\n";
+          alertMsg += "Dylan's updated debt to Jason: $0.00\n";
         }
         else if (dylan2jason === (jason2dylan + owe_Jason)) {
           updateCell("dylan2jason", 0);
           updateCell("jason2dylan", 0);
+          alertMsg += "Jason's existing debt to Dylan: $" + jason2mckenna + "\n";
+          alertMsg += "Jason's debt to new claim: $" + owe_Jason + "\n";
+          alertMsg += "Dylan's existing debt to Jason: $" + dylan2jason + "\n\n";
+          alertMsg += "Jason's updated debt to Dylan: $0.00\n";
+          alertMsg += "Dylan's updated debt to Jason: $0.00\n";
         }
         else if (dylan2jason > (jason2dylan + owe_Jason)) {
           var difference = (dylan2jason - (jason2dylan + owe_Jason));
           updateCell("jason2dylan", 0);
           updateCell("dylan2jason", difference);
+          alertMsg += "Jason's existing debt to Dylan: $" + jason2dylan + "\n";
+          alertMsg += "Jason's debt to new claim: $" + owe_Jason + "\n";
+          alertMsg += "Dylan's existing debt to Jason: $" + dylan2jason + "\n\n";
+          alertMsg += "Dylan's updated debt to Jason: $" + difference + "\n";
+          alertMsg += "Jason's updated debt to Dylan: $0.00\n";
+        }
+        else if (jason2dylan === 0) {
+          updateCell("jason2dylan", owe_Jason);
+          alertMsg += "Jason's debt to new claim: $" + owe_Jason + "\n";
         }
       }
     }
 
-    else if (covered === "Jason") {  // If Dylan covered new expense claim
+    else if (covered === "Jason") {  // If Jason covered new expense claim
       if (owe_Jason != 0) {
-        return showAlert("Wut?!", "Why would Jason pay themselves back...?\n\nTry again.");
+        return showAlert("Invalid Operation", "Jason cannot owe what they already covered.\n\nPlease try again.");
       }
       if (owe_McKenna > 0) {  // If McKenna owes on Jason's new expense claim
-
+        if (jason2mckenna < (mckenna2jason + owe_McKenna)) {
+          var difference = ((mckenna2jason + owe_Mckenna) - jason2mckenna);
+          updateCell("jason2mckenna", 0);
+          updateCell("mckenna2jason", difference);
+          alertMsg += "McKenna's existing debt to Dylan: $" + mckenna2dylan + "\n";
+          alertMsg += "McKenna's debt to new claim: $" + owe_McKenna + "\n";
+          alertMsg += "Dylan's existing debt to McKenna: $" + dylan2mckenna + "\n\n";
+          alertMsg += "McKenna's updated debt to Dylan: $" + difference + "\n";
+          alertMsg += "Dylan's updated debt to McKenna: $0.00\n";
+        }
+        else if (jason2mckenna === (mckenna2jason + owe_Mckenna)) {
+          updateCell("jason2mckenna", 0);
+          updateCell("mckenna2jason", 0);
+        }
+        else if (jason2mckenna > (mckenna2jason + owe_Mckenna)) {
+          var difference = (mckenna2jason - (mckenna2jason + owe_Mckenna));
+          updateCell("mckenna2jason", 0);
+          updateCell("jason2mckenna", difference);
+        }
+        else if (mckenna2jason === 0) {
+          updateCell("mckenna2jason", owe_McKenna);
+          alertMsg += "McKenna Owes: ";
+        }
       }
       if (owe_Dylan > 0) {  // If Dylan owes on Jason's new expense claim
-
+        if (jason2dylan < (dylan2jason + owe_Dylan)) {
+          var difference = ((dylan2jason + owe_Dylan) - jason2dylan);
+          updateCell("jason2dylan", 0);
+          updateCell("dylan2jason", difference);
+        }
+        else if (jason2dylan === (dylan2jason + owe_Dylan)) {
+          updateCell("jason2dylan", 0);
+          updateCell("dylan2jason", 0);
+        }
+        else if (jason2dylan > (dylan2jason + owe_Dylan)) {
+          var difference = (dylan2jason - (dylan2jason + owe_Dylan));
+          updateCell("dylan2jason", 0);
+          updateCell("jason2dylan", difference);
+        }
+        else if (dylan2jason === 0) {
+          updateCell("dylan2jason", owe_Dylan);
+        }
       }
     }
-
-    // Update "Claims to be Reimbursed" on spreadsheet
-    // TODO: fix
 
     // Update "Reimbursement Claim Log" on spreadsheet
     var nextAvailRow = getFirstEmptyRow();
