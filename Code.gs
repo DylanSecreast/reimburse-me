@@ -128,12 +128,6 @@ function getCurrentTime() {
   var day = today.getDate();
   var month = today.getMonth() + 1; // January = 0
   var year = today.getFullYear();
-  //  if(dd < 10){
-  //    dd = '0' + dd;
-  //  }
-  //  if(mm < 10){
-  //    mm = '0' + mm;
-  //  }
   return month + '/' + day + '/' + year;
 }
 
@@ -270,47 +264,99 @@ function getNewExpenseData(covered, owe_McKenna, owe_Dylan, owe_Jason, comments)
       if (owe_McKenna != 0) {
         return showAlert("Wut?!", "Why would McKenna pay themselves back...?\n\nTry again.");
       }
-      if (owe_Dylan > 0) {  // If Dylan owes on new expense claim
-        if (mckenna2dylan < (dylan2mckenna + owe_Dylan)) {                 // If Dylan owes more to McKenna than vice versa
-          var difference = ((dylan2mckenna + owe_Dylan) - mckenna2dylan);  // Calculate difference
-          sheet.getRange('mckenna2dylan').setValue(0);                     // Clear mckenna2dylan debt
-          sheet.getRange('dylan2mckenna').setValue(difference);            // Set dylan2mckenna debt to difference
+      if (owe_Dylan > 0) {  // If Dylan owes on McKenna's new expense claim
+        if (dylan2mckenna === 0) {                                        // If this is Dylan's first claim to owe
+          updateCell("dylan2mckenna", owe_Dylan);                         // Initialize w/ owed amount
         }
-        else if (mckenna2dylan === (dylan2mckenna + owe_Dylan)) {           // If Dylans debt = McKenna's debt
-        sheet.getRange('mckenna2dylan').setValue(0);                      // Clear mckenna2dylan debt
-        sheet.getRange('dylan2mckenna').setValue(0);                      // Clear dylan2mckenna debt
+        else if (mckenna2dylan < (dylan2mckenna + owe_Dylan)) {           // If Dylan owes more to McKenna than vice versa
+          var difference = ((dylan2mckenna + owe_Dylan) - mckenna2dylan); // Calculate difference
+          updateCell("mckenna2dylan", 0);                                 // Clear mckenna2dylan debt
+          updateCell("dylan2mckenna", difference);                        // Set dylan2mckenna debt to difference
+        }
+        else if (mckenna2dylan === (dylan2mckenna + owe_Dylan)) {         // If Dylans debt = McKenna's debt
+          updateCell("mckenna2dylan", 0)                                  // Clear mckenna2dylan debt
+          updateCell("dylan2mckenna", 0);                                 // Clear dylan2mckenna debt
+        }
+        else if (mckenna2dylan > (dylan2mckenna + owe_Dylan)) {           // If McKenna owes more to Dylan than vice versa
+          var difference = (mckenna2dylan - (dylan2mckenna + owe_Dylan)); // Calculate difference
+          updateCell("dylan2mckenna", 0);                                 // Clear dylan2mckenna debt
+          updateCell("mckenna2dylan", difference)                         // Set mckenna2dylan debt to difference
+        }
       }
-      else if (mckenna2dylan > (dylan2mckenna + owe_Dylan)) {             // If McKenna owes more to Dylan than vice versa
-        var difference = (mckenna2dylan - (dylan2mckenna + owe_Dylan));   // Calculate difference
-        sheet.getRange('dylan2mckenna').setValue(0);                      // Clear dylan2mckenna debt
-        sheet.getRange('mckenna2dylan').setValue(difference);             // Set mckenna2dylan debt to difference
-      }
-      }
-      if (owe_Jason > 0) {  // If Jason owes on new expense claim
-        if (mckenna2jason < (jason2mckenna + owe_Jason)) {                 // If Jason owes more to McKenna than vice versa
+      if (owe_Jason > 0) {  // If Jason owes on McKenna's new expense claim
+        if (jason2mckenna === 0) {
+          updateCell("jason2mckenna", owe_Jason);
+        }
+        else if (mckenna2jason < (jason2mckenna + owe_Jason)) {            // If Jason owes more to McKenna than vice versa
           var difference = ((jason2mckenna + owe_Jason) - mckenna2jason);  // Calculate difference
-          sheet.getRange('mckenna2jason').setValue(0);                     // Clear mckenna2jason debt
-          sheet.getRange('jason2mckenna').setValue(difference);            // Set jason2mckenna debt to difference
+          updateCell("mckenna2jason", 0);                                  // Clear mckenna2jason debt
+          updateCell("jason2mckenna", difference);                         // Set jason2mckenna debt to difference
         }
         else if (mckenna2jason === (jason2mckenna + owe_Jason)) {          // If Jason's debt = McKenna's debt
-        sheet.getRange('mckenna2jason').setValue(0);                      // Clear mckenna2jason debt
-        sheet.getRange('jason2mckenna').setValue(0);                      // Clear jason2mckenna debt
+          updateCell("mckenna2jason", 0);                                  // Clear mckenna2jason debt
+          updateCell("jason2mckenna", 0);                                  // Clear jason2mckenna debt
         }
-        else if (mckenna2jason > (jason2mckenna + owe_Jason)) {             // If McKenna owes more to Jason than vice versa
-          var difference = (mckenna2jason - (jason2mckenna + owe_Jason));   // Calculate difference
-          sheet.getRange('jason2mckenna').setValue(0);                      // Clear jason2mckenna debt
-          sheet.getRange('mckenna2jason').setValue(difference);             // Set mckenna2jason debt to difference
+        else if (mckenna2jason > (jason2mckenna + owe_Jason)) {            // If McKenna owes more to Jason than vice versa
+          var difference = (mckenna2jason - (jason2mckenna + owe_Jason));  // Calculate difference
+          updateCell("jason2mckenna", 0);                                  // Clear jason2mckenna debt
+          updateCell("mckenna2jason", difference);                         // Set mckenna2jason debt to difference
         }
       }
     }
-    else if (covered === "Dylan") {
+
+    else if (covered === "Dylan") {  // If Dylan covered new expense claim
       if (owe_Dylan != 0) {
         return showAlert("Wut?!", "Why would Dylan pay themselves back...?\n\nTry again.");
       }
+      if (owe_McKenna > 0) {  // If McKenna owes on Dylan's new expense claim
+        if (mckenna2dylan === 0) {
+          updateCell("mckenna2dylan", owe_McKenna);
+        }
+        else if (dylan2mckenna < (mckenna2dylan + owe_McKenna)) {
+          var difference = ((mckenna2dylan + owe_McKenna) - dylan2mckenna);
+          updateCell("dylan2mckenna", 0);
+          updateCell("mckenna2dylan", difference);
+        }
+        else if (dylan2mckenna === (mckenna2dylan + owe_McKenna)) {
+          updateCell("dylan2mckenna", 0);
+          updateCell("mckenna2dylan", 0);
+        }
+        else if (dylan2mckenna > (mckenna2dylan + owe_McKenna)) {
+          var difference = (mckenna2dylan - (mckenna2dylan + owe_McKenna));
+          updateCell("mckenna2dylan", 0);
+          updateCell("dylan2mckenna", difference);
+        }
+      }
+      if (owe_Jason > 0) {  // If Jason owes on Dylan's new expense claim
+        if (jason2dylan === 0) {
+          updateCell("jason2dylan", owe_Jason);
+        }
+        else if (dylan2jason < (jason2dylan + owe_Jason)) {
+          var difference = ((jason2dylan + owe_Jason) - dylan2jason);
+          updateCell("dylan2jason", 0);
+          updateCell("jason2dylan", difference);
+        }
+        else if (dylan2jason === (jason2dylan + owe_Jason)) {
+          updateCell("dylan2jason", 0);
+          updateCell("jason2dylan", 0);
+        }
+        else if (dylan2jason > (jason2dylan + owe_Jason)) {
+          var difference = (dylan2jason - (jason2dylan + owe_Jason));
+          updateCell("jason2dylan", 0);
+          updateCell("dylan2jason", difference);
+        }
+      }
     }
-    else if (covered === "Jason") {
+
+    else if (covered === "Jason") {  // If Dylan covered new expense claim
       if (owe_Jason != 0) {
         return showAlert("Wut?!", "Why would Jason pay themselves back...?\n\nTry again.");
+      }
+      if (owe_McKenna > 0) {  // If McKenna owes on Jason's new expense claim
+
+      }
+      if (owe_Dylan > 0) {  // If Dylan owes on Jason's new expense claim
+
       }
     }
 
