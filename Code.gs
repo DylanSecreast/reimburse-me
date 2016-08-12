@@ -9,17 +9,14 @@ function initMenubar() {
   var ui_Menubar = SpreadsheetApp.getUi();
   ui_Menubar.createMenu('ReimburseMe')
     .addSubMenu(ui_Menubar.createMenu('View')
-      .addItem('Show Sidebar', 'showSidebar')
-      .addItem('Hide Sidebar', 'hideSidebar'))
+    .addItem('Show Sidebar', 'showSidebar')
+    .addItem('Hide Sidebar', 'hideSidebar'))
     .addSubMenu(ui_Menubar.createMenu('Clear')
-      .addItem('Monthly Shared Expenses', 'clearSharedExpenses')
-      .addItem('Claims to be Reimbursed', 'clearClaimBalances')
-      .addItem('Reimbursement Claim Log', 'clearLog'))
-    .addSubMenu(ui_Menubar.createMenu('Backup')
-      .addItem('Monthly Shared Expenses', 'backupSharedExpenses')
-      .addItem('Claims to be Reimbursed', 'backupClaimBalances')
-      .addItem('Reimbursement Claim Log', 'backupLog')
-      .addItem('All', 'backupAll'))
+    .addItem('Monthly Shared Expenses', 'clearSharedExpenses')
+    .addItem('Claims to be Reimbursed', 'clearClaimBalances')
+    .addItem('Reimbursement Claim Log', 'clearLog')
+    .addItem('All', 'clearAll'))
+    .addItem('Backup', 'backupAll')
     .addItem('Credits', 'showCredits')
     .addSeparator()
     .addItem('Help', 'helpMe')
@@ -31,7 +28,7 @@ function initMenubar() {
 function initApp(e) {
   initSidebar();
   initMenubar();
-  return;
+return;
 }
 
 // ON OPEN [WORKS/DONE] //
@@ -62,7 +59,7 @@ function showCredits() {
   return showAlert("Brought to you by...", "ReimburseMe © Dylan Secreast 2016.\n\nContact: dsecreast@gmail.com");
 }
 
-// HELP ME [BROKEN/TODO] //
+// HELP ME [WORKS/TODO] //
 function helpMe() {
   // TODO: fix
   return showAlert("I need an Adult!", "Lul you're fucked. This shit is so broken ATM.");
@@ -109,27 +106,35 @@ function clearLog() {
 // CLEAR SIDEBAR [BROKEN/NOT_USED] //
 function clearSidebar() {
   // TODO: fix
-//  document.getElementById("select_covered").value = "Select";
-//  document.getElementById("owe_McKenna").value = '';
-//  document.getElementById("owe_Dylan").value = '';
-//  document.getElementById("owe_Jason").value = '';
-//  document.getElementById("comments").value = ''; 
+  //  document.getElementById("select_covered").value = "Select";
+  //  document.getElementById("owe_McKenna").value = '';
+  //  document.getElementById("owe_Dylan").value = '';
+  //  document.getElementById("owe_Jason").value = '';
+  //  document.getElementById("comments").value = '';
+  return showAlert("I can't!", "Unable to execute clearSidebar() - functionality currently unavailable.");
+}
+
+// CLEAR ALL [WORKS/DONE] //
+function clearAll() {
+  clearSharedExpenses();
+  clearClaimBalances();
+  clearLog();
   return;
 }
 
 // GET CURRENT TIME [WORKS/DONE] //
 function getCurrentTime() {
   var today = new Date();
-  var dd = today.getDate();
-  var mm = today.getMonth()+1;
-  var yyyy = today.getFullYear();
-  if(dd < 10){
-    dd = '0' + dd;
-  } 
-  if(mm < 10){
-    mm = '0' + mm;
-  } 
-  return mm + '/' + dd + '/' + yyyy;
+  var day = today.getDate();
+  var month = today.getMonth() + 1; // January = 0
+  var year = today.getFullYear();
+  //  if(dd < 10){
+  //    dd = '0' + dd;
+  //  }
+  //  if(mm < 10){
+  //    mm = '0' + mm;
+  //  }
+  return month + '/' + day + '/' + year;
 }
 
 // GET FIRST EMPTY ROW [WORKS/DONE] //
@@ -137,21 +142,19 @@ function getFirstEmptyRow() {
   var sheet = SpreadsheetApp.getActiveSheet();
   var offSet = 36;
   var maxOffSet = 54;
-
   var column = sheet.getRange('coveredBy');
   var values = column.getValues(); // get all log data in one call
-  
   var ct = 0;
   while ( values[ct] && values[ct][0] != "" ) { // While next cell isn't empty...
     if ((ct + offSet) >= maxOffSet) {           // If no room in log
-      showAlert("Whoa!", "OMG the Reimbursement Claim Log is full!\n\nHere, I'll clear it for you."); // TODO: auto-backup before clearing
+      // TODO: auto-backup before clearing
       clearLog();                               // clear log
       return offSet;                            // and insert in first log cell
-    } else {
+    }
+    else {
       ct++;                                     // else, try next cell
     }
   }
-  
   return (ct + offSet);
 }
 
@@ -160,7 +163,8 @@ function initBackup() {
   var reimburseMeFolder;
   if (DriveApp.getFoldersByName("ReimburseMe").hasNext()) {               // If ReimburseMe root dir exists...
     reimburseMeFolder = DriveApp.getFoldersByName("ReimburseMe").next();  // Get it
-  } else {                                                                // Else, it doesn't exist...
+  }
+  else {                                                                // Else, it doesn't exist...
     reimburseMeFolder = DriveApp.createFolder("ReimburseMe");             // Create it
   }
   return reimburseMeFolder;
@@ -169,33 +173,32 @@ function initBackup() {
 // CREATE FILE IN FOLDER [BROKEN/NOT_USED] //
 function createFileInFolder(filename, payload) {
   var reimburseMeFolder = initBackup();  // Get ReimburseMe folder from Drive root
-  return SpreadsheetApp.create(filename, payload, MimeType.GOOGLE_SHEETS);  // .createFile('My File.txt', 'Lorem ipsum', MimeType.PLAIN_TEXT);
-}
-
-// BACKUP SHARED EXPENSES [BROKEN/TODO] //
-function backupSharedExpenses() { // TODO: fix
-  var reimburseMeFolder = initBackup();  // Get ReimburseMe folder from Drive root
-  // TODO: fix
-  
-  return showAlert("Success!", "Successfully backed up \"Monthly Shared Expenses\" to your Google Drive/ReimburseMe/ folder.");
-}
-
-// BACKUP CLAIM BALANCES [BROKEN/TODO] //
-function backupClaimBalances() {
-  var reimburseMeFolder = initBackup();  // Get ReimburseMe folder from Drive root
-  // TODO: fix
-  
+  //  return SpreadsheetApp.create(filename, payload, MimeType.GOOGLE_SHEETS);  // .createFile('My File.txt', 'Lorem ipsum', MimeType.PLAIN_TEXT);
   return showAlert("I can't!", "Error: Functionality not currently available.");
 }
 
-// BACKUP LOG [WORKS/TODO] //
+// BACKUP SHARED EXPENSES [BROKEN/NOT_USED] //
+function backupSharedExpenses() { // TODO: fix
+  var reimburseMeFolder = initBackup();  // Get ReimburseMe folder from Drive root
+  // TODO: fix
+  return showAlert("I can't!", "Error: Functionality not currently available.");
+}
+
+// BACKUP CLAIM BALANCES [BROKEN/NOT_USED] //
+function backupClaimBalances() {
+  var reimburseMeFolder = initBackup();  // Get ReimburseMe folder from Drive root
+  // TODO: fix
+  return showAlert("I can't!", "Error: Functionality not currently available.");
+}
+
+// BACKUP LOG [BROKEN/NOT_USED] //
 function backupLog() {
   var sheet = SpreadsheetApp.getActiveSheet();
   var reimburseMeFolder = initBackup();  // Get ReimburseMe folder from Drive root
-  
   var payload = sheet.getRange('reimbursementClaimLog').getValues();
-  createFileInFolder("Reimbursement Claim Log - Backup.gs", payload);  // TODO: fix, can't open via google drive
-  return showAlert("Success!", "Successfully backed up \"Reimbursement Claim Log\". Please check your: GoogleDrive/ReimburseMe/Reimbursement Claim Log - Backup");
+  //  createFileInFolder("Reimbursement Claim Log - Backup.gs", payload);  // TODO: fix, can't open via google drive
+  //  return showAlert("Success!", "Successfully backed up \"Reimbursement Claim Log\". Please check your: GoogleDrive/ReimburseMe/Reimbursement Claim Log - Backup");
+  return showAlert("I can't!", "Error: Functionality not currently available.");
 }
 
 // BACKUP ALL [WORKS/TODO] //
@@ -203,21 +206,18 @@ function backupAll() {
   initBackup();
   var spreadsheetFileName = "The Bailey #O167 Claims and Shared Expenses";
   var reimburseMeFolder = initBackup();  // Get ReimburseMe folder from Drive root
-  var clone = DriveApp.getFilesByName(spreadsheetFileName).next();
-  
-  if (DriveApp.getFilesByName(spreadsheetFileName + '.pdf').hasNext()) {
-    var existingBackup = DriveApp.getFilesByName(spreadsheetFileName + '.pdf').next();
-    DriveApp.removeFile(existingBackup);
-    showAlert("Yup!", spreadsheetFileName + ".pdf already exists, deleted it too.");
+  var clone = DriveApp.getFilesByName(spreadsheetFileName).next();  // Get Google Drive copy of spreadsheet
+  if (DriveApp.getFilesByName(spreadsheetFileName + '.pdf').hasNext()) {                // If a backup already exists...
+    var existingBackup = DriveApp.getFilesByName(spreadsheetFileName + '.pdf').next();  // Get it
+    DriveApp.removeFile(existingBackup);                                                // And delete it
   }
-  
-  DriveApp.addFile(clone);  // TODO: make doc save in ReimburseMe folder instead of root
+  DriveApp.createFile(clone);  // TODO: make doc save in ReimburseMe folder instead of root
   return showAlert("Success!", "Successfully backed up whole \"Shared Monthly Expenses\" spreadsheet. Please check your root Google Drive folder for: ~/ReimburseMe/ReimburseMe - Master Backup.pdf for a PDF document.");
 }
 
 // GET CLAIM LOG COUNT [WORKS/DONE] //
 function getClaimLogCount() {
-  return (getFirstEmptyRow() - 36); 
+  return (getFirstEmptyRow() - 36);
 }
 
 // DELETE All PROTECTED RANGES [WORKS/DONE] //
@@ -234,14 +234,13 @@ function deleteAllProtectedRanges() {  // Will delete ALL protected ranges, rega
 function getNewExpenseData(covered, owe_McKenna, owe_Dylan, owe_Jason, comments) {
   var sheet = SpreadsheetApp.getActiveSheet();
   if (covered == "Select") {
-    showAlert("Oops!", "Error claiming new expense: Please select \"Who covered expense?\".\n\nNo information has been saved.");
-    return clearSidebar(); 
-  } else {
+    return showAlert("Oops!", "Error claiming new expense: Please select \"Who covered expense?\".\n\nNo information has been saved.");
+  }
+  else {
     var alertMsg = "Successfully claimed new expense, please see summary below.\n\n\nCovered by: " + covered + "\n\n";
-    
     // If left blank, make $0.00
     if (owe_McKenna === '') {
-     owe_McKenna = 0; 
+      owe_McKenna = 0;
     }
     if (owe_Dylan === '') {
       owe_Dylan = 0;
@@ -249,15 +248,15 @@ function getNewExpenseData(covered, owe_McKenna, owe_Dylan, owe_Jason, comments)
     if (owe_Jason === '') {
       owe_Jason = 0;
     }
-    
+
     // Sanitize $XX.XX user input
     owe_McKenna = parseFloat(owe_McKenna);
     owe_Dylan = parseFloat(owe_Dylan);
     owe_Jason = parseFloat(owe_Jason);
-    
+
     // Calculate claim total
     var claimTotal = (owe_McKenna + owe_Dylan + owe_Jason);
-    
+
     // Get existing "Claims to be Reimbursed" individual totals
     var mckenna2dylan = sheet.getRange("mckenna2dylan").getValue();
     var mckenna2jason = sheet.getRange("mckenna2jason").getValue();
@@ -265,52 +264,59 @@ function getNewExpenseData(covered, owe_McKenna, owe_Dylan, owe_Jason, comments)
     var dylan2jason = sheet.getRange("dylan2jason").getValue();
     var jason2mckenna = sheet.getRange("jason2mckenna").getValue();
     var jason2dylan = sheet.getRange("jason2dylan").getValue();
-    
-    // Verify valid user input data & set new "Claims to be Reimbursed" individual totals
-    if (covered === "McKenna") {
-      if (owe_McKenna != parseFloat(0)) {
-        showAlert("Wut?!", "Why would McKenna pay themselves back...?\n\nTry again."); 
-        return clearSidebar(); 
-      } else {
-        alertMsg += "Dylan Owes: $" + owe_Dylan + "\nJason Owes: $" + owe_Jason + "\n\nClaim Total: $" + claimTotal;
-        if (owe_Dylan > 0) {
-          sheet.getRange('dylan2mckenna').setValue(dylan2mckenna += owe_Dylan);
+
+    // Calculate new Monthly Shared Expenses individual totals
+    if (covered === "McKenna") {  // If McKenna covered new expense claim
+      if (owe_McKenna != 0) {
+        return showAlert("Wut?!", "Why would McKenna pay themselves back...?\n\nTry again.");
+      }
+      if (owe_Dylan > 0) {  // If Dylan owes on new expense claim
+        if (mckenna2dylan < (dylan2mckenna + owe_Dylan)) {                 // If Dylan owes more to McKenna than vice versa
+          var difference = ((dylan2mckenna + owe_Dylan) - mckenna2dylan);  // Calculate difference
+          sheet.getRange('mckenna2dylan').setValue(0);                     // Clear mckenna2dylan debt
+          sheet.getRange('dylan2mckenna').setValue(difference);            // Set dylan2mckenna debt to difference
         }
-        if (owe_Jason >0) {
-          sheet.getRange('jason2mckenna').setValue(jason2mckenna += owe_Jason);
+        else if (mckenna2dylan === (dylan2mckenna + owe_Dylan)) {           // If Dylans debt = McKenna's debt
+        sheet.getRange('mckenna2dylan').setValue(0);                      // Clear mckenna2dylan debt
+        sheet.getRange('dylan2mckenna').setValue(0);                      // Clear dylan2mckenna debt
+      }
+      else if (mckenna2dylan > (dylan2mckenna + owe_Dylan)) {             // If McKenna owes more to Dylan than vice versa
+        var difference = (mckenna2dylan - (dylan2mckenna + owe_Dylan));   // Calculate difference
+        sheet.getRange('dylan2mckenna').setValue(0);                      // Clear dylan2mckenna debt
+        sheet.getRange('mckenna2dylan').setValue(difference);             // Set mckenna2dylan debt to difference
+      }
+      }
+      if (owe_Jason > 0) {  // If Jason owes on new expense claim
+        if (mckenna2jason < (jason2mckenna + owe_Jason)) {                 // If Jason owes more to McKenna than vice versa
+          var difference = ((jason2mckenna + owe_Jason) - mckenna2jason);  // Calculate difference
+          sheet.getRange('mckenna2jason').setValue(0);                     // Clear mckenna2jason debt
+          sheet.getRange('jason2mckenna').setValue(difference);            // Set jason2mckenna debt to difference
+        }
+        else if (mckenna2jason === (jason2mckenna + owe_Jason)) {          // If Jason's debt = McKenna's debt
+        sheet.getRange('mckenna2jason').setValue(0);                      // Clear mckenna2jason debt
+        sheet.getRange('jason2mckenna').setValue(0);                      // Clear jason2mckenna debt
+        }
+        else if (mckenna2jason > (jason2mckenna + owe_Jason)) {             // If McKenna owes more to Jason than vice versa
+          var difference = (mckenna2jason - (jason2mckenna + owe_Jason));   // Calculate difference
+          sheet.getRange('jason2mckenna').setValue(0);                      // Clear jason2mckenna debt
+          sheet.getRange('mckenna2jason').setValue(difference);             // Set mckenna2jason debt to difference
         }
       }
-    } else if (covered === "Dylan") {
-      if (owe_Dylan != parseFloat(0)) {
-        showAlert("Wut?!", "Why would Dylan pay themselves back...?\n\nTry again.");
-        return clearSidebar(); 
-      } else {
-        alertMsg += "McKenna Owes: $" + owe_McKenna + "\nJason Owes: $" + owe_Jason + "\n\nClaim Total: $" + claimTotal;
-        if (owe_McKenna > 0) {
-          sheet.getRange('mckenna2dylan').setValue(mckenna2dylan += owe_McKenna);
-        }
-        if (owe_Jason >0) {
-          sheet.getRange('jason2dylan').setValue(jason2dylan += owe_Jason);
-        }
+    }
+    else if (covered === "Dylan") {
+      if (owe_Dylan != 0) {
+        return showAlert("Wut?!", "Why would Dylan pay themselves back...?\n\nTry again.");
       }
-    } else if (covered === "Jason") {
-      if (owe_Jason != parseFloat(0)) {
-        showAlert("Wut?!", "Why would Jason pay themselves back...?\n\nTry again."); 
-        return clearSidebar(); 
-      } else {
-        alertMsg += "McKenna Owes: $" + owe_McKenna + "\nDylan Owes: $" + owe_Dylan + "\n\nClaim Total: $" + claimTotal;
-        if (owe_McKenna > 0) {
-          sheet.getRange('mckenna2jason').setValue(mckenna2jason += owe_McKenna);
-        }
-        if (owe_Dylan >0) {
-          sheet.getRange('dylan2jason').setValue(dylan2jason += owe_Dylan);
-        }
+    }
+    else if (covered === "Jason") {
+      if (owe_Jason != 0) {
+        return showAlert("Wut?!", "Why would Jason pay themselves back...?\n\nTry again.");
       }
-    }     
+    }
 
     // Update "Claims to be Reimbursed" on spreadsheet
     // TODO: fix
-    
+
     // Update "Reimbursement Claim Log" on spreadsheet
     var nextAvailRow = getFirstEmptyRow();
     var currentTime = getCurrentTime();           // Columns:
@@ -321,10 +327,9 @@ function getNewExpenseData(covered, owe_McKenna, owe_Dylan, owe_Jason, comments)
     updateCell('F' + nextAvailRow, owe_Jason);    // Jason Owe
     updateCell('G' + nextAvailRow, claimTotal);   // Total
     updateCell('H' + nextAvailRow, comments);     // Comments
-    
+
     // Clean up and done!
     alertMsg += "\n\n\nThe \"Claims to be Reimbursed\" and \"Reimbursement Claim Log\" have been udpated with the reflected information.";
-    clearSidebar();
     return showAlert("Success!", alertMsg);
   }
   return;
